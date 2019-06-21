@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:5.6
+    environment:
+      - MYSQL_ROOT_PASSWORD=XSK0609.cookie
+    ports:
+      - "3306:3306"
+    volumes:
+      - /root/data/mysql/config:/etc/mysql/conf.d
+      - /root/data/mysql/logs:/logs
+      - /root/data/mysql/data:/var/lib/mysql
+    restart: always
