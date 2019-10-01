@@ -9,6 +9,7 @@ import (
 const (
 	host = "https://www.ldoceonline.com"
 	url  = "https://www.ldoceonline.com/dictionary/breeze"
+	//url  = "https://www.ldoceonline.com/dictionary/reserved"
 )
 
 func main() {
@@ -16,10 +17,9 @@ func main() {
 		// Visit only domains: hackerspaces.org, wiki.hackerspaces.org
 		colly.AllowedDomains("ldoceonline.com", "www.ldoceonline.com"),
 	)
-
 	//doc, _ := htmlquery.Parse(strings.NewReader(htmlPage))
 	// On every a element which has href attribute call callback
-	c.OnHTML("div[class=dictionary]", func(e *colly.HTMLElement) {
+	c.OnHTML("div[class=entry_content]", func(e *colly.HTMLElement) {
 		fmt.Println(e.Text)
 		for _, node := range e.DOM.Find("./div[class=dictentry]").Nodes {
 			fmt.Println(node.Data)
@@ -38,12 +38,10 @@ func main() {
 		// Only those links are visited which are in AllowedDomains
 		//c.Visit(e.Request.AbsoluteURL(link))
 	})
-
 	// Before making a request print "Visiting ..."
 	c.OnRequest(func(r *colly.Request) {
 		fmt.Println("Visiting", r.URL.String())
 	})
-
 	// Start scraping on https://hackerspaces.org
 	c.Visit(url)
 }
