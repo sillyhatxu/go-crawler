@@ -10,7 +10,7 @@ import (
 
 const (
 	//url = "https://www.ldoceonline.com/dictionary/breeze"
-	url = "https://www.ldoceonline.com/dictionary/default"
+	url = "https://www.ldoceonline.com/dictionary/asdfasdfasdfas"
 )
 
 type Vocabulary struct {

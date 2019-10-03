@@ -1,45 +1,36 @@
-package main
+package longman
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/gocolly/colly"
+	"github.com/sillyhatxu/retry-utils"
 	"github.com/sirupsen/logrus"
 	"strconv"
+	"time"
 )
 
 const (
-	//url = "https://www.ldoceonline.com/dictionary/breeze"
-	url = "https://www.ldoceonline.com/dictionary/default"
+	url = "https://www.ldoceonline.com/dictionary"
 )
 
-type Vocabulary struct {
-	Word     string              `json:"word"`
-	Explains []VocabularyExplain `json:"explains"`
+func QueryVocabulary(word string) (*Vocabulary, error) {
+	var vocabulary *Vocabulary
+	err := retry.Do(func() error {
+		v, err := findVocabulary(word)
+		if err != nil {
+			return nil
+		}
+		vocabulary = v
+		return nil
+	}, retry.Attempts(10), retry.Delay(3*time.Second), retry.ErrorCallback(func(n uint, err error) {
+		logrus.Errorf("retry [%d] find vocabulary {%s} error. %v", n, word, err)
+	}))
+	return vocabulary, err
 }
 
-type VocabularyExplain struct {
-	Index          int               `json:"index"`
-	Phonetic       string            `json:"phonetic"`
-	PronounceUKURL string            `json:"pronounce_uk_url"`
-	PronounceUSURL string            `json:"pronounce_us_url"`
-	POS            string            `json:"pos"` //词性 Part of Speech
-	Senses         []VocabularySense `json:"senses"`
-	//xxxxxxx string `json:"xxxxxxxxx"`
-}
-
-type VocabularySense struct {
-	Index      int                      `json:"index"`
-	Definition string                   `json:"definition"`
-	Examples   []VocabularySenseExample `json:"example"`
-}
-
-type VocabularySenseExample struct {
-	Example  string `json:"example"`
-	SoundURL string `json:"sound_url"`
-}
-
-func main() {
+func findVocabulary(word string) (*Vocabulary, error) {
+	vocabulary := &Vocabulary{}
 	c := colly.NewCollector(
 		colly.AllowedDomains("ldoceonline.com", "www.ldoceonline.com"),
 	)
@@ -60,7 +51,7 @@ func main() {
 
 	//OnResponse如果接收到的内容是HTML ，则在之后调用
 	c.OnHTML("div[class=entry_content]", func(e *colly.HTMLElement) {
-		vocabulary := Vocabulary{}
+
 		//e.Request.Visit(e.Attr("href"))
 		//classes := e.ChildAttrs("div", "class")//取出attr的值 class="dictionary" 取出dictionary
 		logrus.Infof("word : %s", e.ChildText("h1.pagetitle"))
@@ -151,5 +142,9 @@ func main() {
 	c.OnScraped(func(r *colly.Response) {
 		fmt.Println("Finished", r.Request.URL)
 	})
-	c.Visit(url)
+	err := c.Visit(fmt.Sprintf("%s/%s", url, word))
+	if err != nil {
+		return nil, err
+	}
+	return vocabulary, nil
 }
