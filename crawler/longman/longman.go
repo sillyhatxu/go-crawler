@@ -30,7 +30,7 @@ func QueryVocabulary(word string) (*Vocabulary, error) {
 }
 
 func findVocabulary(word string) (*Vocabulary, error) {
-	vocabulary := &Vocabulary{}
+	var vocabulary *Vocabulary
 	c := colly.NewCollector(
 		colly.AllowedDomains("ldoceonline.com", "www.ldoceonline.com"),
 	)
@@ -51,7 +51,7 @@ func findVocabulary(word string) (*Vocabulary, error) {
 
 	//OnResponse如果接收到的内容是HTML ，则在之后调用
 	c.OnHTML("div[class=entry_content]", func(e *colly.HTMLElement) {
-
+		vocabulary = &Vocabulary{}
 		//e.Request.Visit(e.Attr("href"))
 		//classes := e.ChildAttrs("div", "class")//取出attr的值 class="dictionary" 取出dictionary
 		logrus.Infof("word : %s", e.ChildText("h1.pagetitle"))
@@ -70,7 +70,7 @@ func findVocabulary(word string) (*Vocabulary, error) {
 			el.ForEach(".Sense", func(_ int, senseElement *colly.HTMLElement) {
 				index, err := strconv.Atoi(senseElement.ChildText("span.sensenum"))
 				if err != nil {
-					panic(err)
+					index = -1
 				}
 				logrus.Infof("sense num : %s", senseElement.ChildText("span.sensenum"))
 				logrus.Infof("sense txt : %s", senseElement.ChildText("span.DEF"))
@@ -93,20 +93,9 @@ func findVocabulary(word string) (*Vocabulary, error) {
 			})
 
 			el.ChildText("span.EXAMPLE")
-
-			//logrus.Infof("word phonetic UK and US url: %s", el.ChildAttrs("span","data-src-mp3"))
-			//logrus.Infof("word phonetic US url: %s", el.ChildAttr("span","amefile"))
-			//mail := Mail{
-			//	Title:   el.ChildText("td:nth-of-type(1)"),
-			//	Link:    el.ChildAttr("td:nth-of-type(1)", "href"),
-			//	Author:  el.ChildText("td:nth-of-type(2)"),
-			//	Date:    el.ChildText("td:nth-of-type(3)"),
-			//	Message: el.ChildText("td:nth-of-type(4)"),
-			//}
-			//threads[threadSubject] = append(threads[threadSubject], mail)
 			index, err := strconv.Atoi(el.ChildText("span.HOMNUM"))
 			if err != nil {
-				panic(err)
+				index = -1
 			}
 			explains = append(explains, VocabularyExplain{
 				Index:          index,
@@ -121,7 +110,8 @@ func findVocabulary(word string) (*Vocabulary, error) {
 		vocabulary.Explains = explains
 		vocabularyJSON, err := json.Marshal(vocabulary)
 		if err != nil {
-			panic(err)
+			logrus.Errorf("vocabulary to json error. %v", err)
+			return
 		}
 		fmt.Println("------------------------------")
 		fmt.Println(string(vocabularyJSON))

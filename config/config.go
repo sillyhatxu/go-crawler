@@ -12,8 +12,9 @@ type config struct {
 }
 
 type environmentConfig struct {
-	LogstashURL   string `toml:"logstash_url" env:"SILLYHAT.LOGSTASH.URL"`
-	ConsulAddress string `toml:"consul_address" env:"SILLYHAT.HOST.CONSUL"`
+	LogstashURL          string `toml:"logstash_url" env:"SILLYHAT.LOGSTASH.URL"`
+	ConsulAddress        string `toml:"consul_address" env:"SILLYHAT.HOST.CONSUL"`
+	InternalWordGrpcHost string `toml:"internal_word_grpc_host" env:"SILLYHAT.HOST.WORD.GRPC"`
 }
 
 type logConf struct {

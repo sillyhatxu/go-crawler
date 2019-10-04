@@ -10,7 +10,8 @@ import (
 
 const (
 	//url = "https://www.ldoceonline.com/dictionary/breeze"
-	url = "https://www.ldoceonline.com/dictionary/default"
+	//url = "https://www.ldoceonline.com/dictionary/default"
+	url = "https://www.ldoceonline.com/dictionary/a"
 )
 
 type Vocabulary struct {
@@ -77,9 +78,10 @@ func main() {
 
 			var senses []VocabularySense
 			el.ForEach(".Sense", func(_ int, senseElement *colly.HTMLElement) {
+				logrus.Infof("sensenum : %s", senseElement.ChildText("span.sensenum"))
 				index, err := strconv.Atoi(senseElement.ChildText("span.sensenum"))
 				if err != nil {
-					panic(err)
+					index = -1
 				}
 				logrus.Infof("sense num : %s", senseElement.ChildText("span.sensenum"))
 				logrus.Infof("sense txt : %s", senseElement.ChildText("span.DEF"))
@@ -115,7 +117,7 @@ func main() {
 			//threads[threadSubject] = append(threads[threadSubject], mail)
 			index, err := strconv.Atoi(el.ChildText("span.HOMNUM"))
 			if err != nil {
-				panic(err)
+				index = -1
 			}
 			explains = append(explains, VocabularyExplain{
 				Index:          index,
@@ -130,7 +132,8 @@ func main() {
 		vocabulary.Explains = explains
 		vocabularyJSON, err := json.Marshal(vocabulary)
 		if err != nil {
-			panic(err)
+			logrus.Errorf("vocabulary to json error. %v", err)
+			return
 		}
 		fmt.Println("------------------------------")
 		fmt.Println(string(vocabularyJSON))

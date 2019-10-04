@@ -15,4 +15,4 @@
 *.iws
 .idea/
 
-log/
+vendor/
