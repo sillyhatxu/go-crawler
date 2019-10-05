@@ -379,7 +379,7 @@
   revision = "c459b9ce5143dd819763d9329ff92a8e35e61bd9"
 
 [[projects]]
-  digest = "1:6cd77d0b616d2dcebd363dfecba593f27b0151fc82cdb5fbfb96c5a7cfbc95b5"
+  digest = "1:7d3dc9da8a606ed421ace211357afdc4bdd8ee8eb7dd2c38677c71d2382a7dee"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -394,6 +394,8 @@
     "encoding",
     "encoding/proto",
     "grpclog",
+    "health",
+    "health/grpc_health_v1",
     "internal",
     "internal/backoff",
     "internal/balancerload",
@@ -436,7 +438,10 @@
     "github.com/sillyhatxu/word-backend/grpc/longman",
     "github.com/sillyhatxu/word-backend/grpc/word",
     "github.com/sirupsen/logrus",
+    "google.golang.org/grpc",
     "google.golang.org/grpc/codes",
+    "google.golang.org/grpc/health",
+    "google.golang.org/grpc/health/grpc_health_v1",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

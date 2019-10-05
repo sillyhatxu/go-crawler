@@ -11,14 +11,18 @@ import (
 	"github.com/sillyhatxu/word-backend/grpc/word"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
+	"math/rand"
 	"time"
 )
 
+//TODO 随机休眠 60秒随机
+//TODO DDL_PATH 没有赋值
 func AutoCrawlerLongmanWord() {
 	rows := 370103
 	pageSize := 5000
 	pageSum := (rows + pageSize - 1) / pageSize
-	for page := 1; page < pageSum; page++ {
+	for page := 0; page < pageSum; page++ {
+		logrus.Infof("find word list page : %d; pageSum : %d", page, pageSum)
 		offset := page * pageSize
 		limit := pageSize
 		wordArray, err := FindWordList(int64(offset), int64(limit))
@@ -53,9 +57,8 @@ func AutoCrawlerLongmanWord() {
 			if err != nil {
 				logrus.Errorf("add vocabulary error. %v", err)
 			}
-			time.Sleep(5 * time.Second)
+			time.Sleep(time.Duration(rand.Intn(60)+1) * time.Second)
 		}
-		//fmt.Println(array[start:end])
 	}
 }
 
@@ -71,6 +74,7 @@ func AddVocabulary(request *longman.AddRequest) error {
 	return nil
 }
 func FindWordList(offset, limit int64) ([]*word.Word, error) {
+	logrus.Infof("word grpc host : %s", config.Conf.EnvConfig.InternalWordGrpcHost)
 	client := grpcclient.NewGRPCWordClient(config.Conf.EnvConfig.InternalWordGrpcHost)
 	var response *word.WordListResponse
 	err := retry.Do(func() error {

@@ -2,11 +2,9 @@ version: '3.4'
 
 services:
   word-backend:
-    image: xushikuan/word-backend:${APPLICATION_VERSION}
+    image: xushikuan/go-crawler:${APPLICATION_VERSION}
     env_file:
       - ./sillyhat-env-config/config.env
-    ports:
-      - 8802:8080
     deploy:
       replicas: 1
       restart_policy:
