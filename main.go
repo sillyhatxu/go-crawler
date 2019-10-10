@@ -12,6 +12,10 @@ import (
 	"github.com/sillyhatxu/logrus-client/filehook"
 	"github.com/sillyhatxu/logrus-client/logstashhook"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	hv1 "google.golang.org/grpc/health/grpc_health_v1"
+	"net"
 )
 
 func init() {
@@ -52,12 +56,30 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Conf.GRPCPort))
+	if err != nil {
+		panic(err)
+	}
+
+	go func() {
+		server := grpc.NewServer()
+
+		healthServer := health.NewServer()
+		healthServer.SetServingStatus(consul.DefaultHealthCheckGRPCServerName, hv1.HealthCheckResponse_SERVING)
+		hv1.RegisterHealthServer(server, healthServer)
+
+		err := server.Serve(grpcListener)
+		if err != nil {
+			panic(err)
+		}
+	}()
+
 	//schedulerClient, err := scheduler.NewScheduler(&service.CrawlerLongmanWord{Name: "crawler-longman-word"}, scheduler.Start("00:00:00"), scheduler.Interval(2*time.Second))
 	//if err != nil {
 	//	panic(err)
 	//}
 	//schedulerClient.Run()
-	service.AutoCrawlerLongmanWord()
+	go service.AutoCrawlerLongmanWord()
 	forever := make(chan bool)
 	<-forever
 }
