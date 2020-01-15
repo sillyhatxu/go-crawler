@@ -6,7 +6,8 @@ import (
 	"github.com/gocolly/colly/debug"
 )
 
-func CrawlerScript(url string) {
+func CrawlerScriptURL(url string) []ScriptURL {
+	var result []ScriptURL
 	c := colly.NewCollector(
 		colly.Debugger(&debug.LogDebugger{}),
 		colly.AllowedDomains("springfieldspringfield.co.uk", "www.springfieldspringfield.co.uk"),
@@ -33,13 +34,18 @@ func CrawlerScript(url string) {
 			fmt.Println("title:", title)
 			eLeft.ForEach("div[class=season-episodes]", func(i int, eSeason *colly.HTMLElement) {
 				season := eSeason.ChildText("h3")
+				scriptURL := ScriptURL{Season: season}
+				var urlArray []string
 				fmt.Println("season:", season)
 				hrefs := eSeason.ChildAttrs("a", "href")
 				for _, href := range hrefs {
-					fmt.Println("href:", href)
+					urlArray = append(urlArray, href)
 				}
+				scriptURL.URLArray = urlArray
+				result = append(result, scriptURL)
 			})
 		})
 	})
 	c.Visit(url)
+	return result
 }

@@ -1,7 +1,11 @@
 package springfieldspringfield
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestCrawlerScript(t *testing.T) {
-	CrawlerScript("https://www.springfieldspringfield.co.uk/episode_scripts.php?tv-show=good-luck-charlie")
+	result := CrawlerScriptURL("https://www.springfieldspringfield.co.uk/episode_scripts.php?tv-show=good-luck-charlie")
+	fmt.Println(fmt.Printf("%#v", result))
 }
